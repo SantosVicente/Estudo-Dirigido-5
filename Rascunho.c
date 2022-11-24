@@ -50,19 +50,26 @@ int get_size(const char *file_name)
     return size;
 }
 
-void preenche_lista(Lista *lista, const char *file_name)
+void preenche_lista(Lista *lista)
 {
-    FILE *file = fopen(file_name, "a+");
+    printf("entrou");
+    system("pause");
+
+    FILE *file = fopen("arquivo.txt", "a+");
+
+    if (file == NULL)
+    {
+        return 0;
+    }
+
+    printf("abriu o arquivo");
+    system("pause");
+    //
+
     char name[128], turma[8];
     float nota;
     int mat;
     float freq;
-
-    fscanf(file_name, "%127[^\n] ", name);
-    fscanf(file_name, "%f ", &nota);
-    fscanf(file_name, "%f ", &freq);
-    fscanf(file_name, "%7[^\n]  ", turma);
-    fscanf(file_name, "%d ", &mat);
 
     No *novo = (No *)malloc(sizeof(No));
 
@@ -72,16 +79,27 @@ void preenche_lista(Lista *lista, const char *file_name)
         exit(1);
     }
 
-    /*
-    ERROR:
-    
-    A LEITURA NÃO FUNCIONA COM MAIS DE UM ALUNO NO ARQUIVO POIS ELE SO ESTAVA LENDO
-    UM ALUNO, PARA LER TODOS ELE PRECISA ESTAR EM UM LOOP E TAMBEM IDENTIFICAR QUE 
-    CHEGOU AO FIM DO ARQUIVO PARA PARAR A ALOCAÇÃO, REVER ESTÁ PARTE
-    */
+    printf("criou o no");
+    system("pause");
 
-    while (!EOF)
+    while (!feof(file))
     {
+        printf("entrou no while");
+        system("pause");
+        fscanf(file, "%127[^\n] ", name);
+        fscanf(file, "%f ", &nota);
+        fscanf(file, "%f ", &freq);
+        fscanf(file, "%7[^\n] ", turma);
+        fscanf(file, "%d ", &mat);
+
+        printf("%s", name);
+        printf("%.2f", nota);
+        printf("%.2f", freq);
+        printf("%s", turma);
+        printf("%d", mat);
+
+        system("pause");
+
         strcpy(novo->nome, name);
         novo->nota = nota;
         novo->frequencia = freq;
@@ -101,8 +119,9 @@ void preenche_lista(Lista *lista, const char *file_name)
             lista->fim = novo;
         }
 
-        novo = novo -> proximo;
+        novo = novo->proximo;
     }
+    fclose(file);
 }
 
 void verificarAluno(Lista *lista, int mat, int *verif)
@@ -517,7 +536,7 @@ int main()
 
     if (get_size("arquivo.txt") != 0)
     {
-        preenche_lista(lista, file);
+        preenche_lista(lista);
     }
 
     while (menu != 9)
