@@ -36,6 +36,76 @@ Lista *cria_lista()
     return lista;
 }
 
+int get_size(const char *file_name)
+{
+    FILE *file = fopen(file_name, "r");
+
+    if (file == NULL)
+        return 0;
+
+    fseek(file, 0, SEEK_END);
+    int size = ftell(file);
+    fclose(file);
+
+    return size;
+}
+
+void insere_lista_fim(Lista *lista, char nome[], float nota, float freq, char turma[], int mat)
+{
+    No *node = (No *)malloc(sizeof(No));
+    if (node == NULL)
+    {
+        printf("\nErro ao alocar memória para o nó da lista\n");
+        exit(1);
+    }
+
+    strcpy(node->nome, nome);
+    node->nota = nota;
+    node->frequencia = freq;
+    strcpy(node->turma, turma);
+    node->matricula = mat;
+
+    node->proximo = NULL;
+
+    if (lista->inicio == NULL)
+    {
+        lista->inicio = node;
+        lista->fim = node;
+    }
+    else
+    {
+        lista->fim->proximo = node;
+        lista->fim = node;
+    }
+}
+
+void preenche_lista(Lista *lista)
+{
+    FILE *file = fopen("arquivo.txt", "a+");
+
+    if (file == NULL)
+    {
+        return 0;
+    }
+
+    char name[128], turma[8];
+    float nota;
+    int mat;
+    float freq;
+
+    while (!feof(file))
+    {
+        fscanf(file, "%127[^\n] ", name);
+        fscanf(file, "%f ", &nota);
+        fscanf(file, "%f ", &freq);
+        fscanf(file, "%7[^\n] ", turma);
+        fscanf(file, "%d ", &mat);
+
+        insere_lista_fim(lista, name, nota, freq, turma, mat);
+    }
+    fclose(file);
+}
+
 void verificarAluno(Lista *lista, int mat, int *verif)
 {
     No *node;
@@ -52,6 +122,25 @@ void verificarAluno(Lista *lista, int mat, int *verif)
             *verif = 0;
         }
     }
+}
+
+void gravarDados(Lista *lista)
+{
+
+    FILE *file = fopen("arquivo.txt", "w");
+
+    No *node;
+
+    for (node = lista->inicio; node != NULL; node = node->proximo)
+    {
+        fprintf(file, "%s\n", node->nome);
+        fprintf(file, "%f\n", node->nota);
+        fprintf(file, "%f\n", node->frequencia);
+        fprintf(file, "%s\n", node->turma);
+        fprintf(file, "%d\n", node->matricula);
+    }
+
+    fclose(file);
 }
 
 void insereAluno(Lista *lista, int mat, char name[], float note, float freq, char class[])
@@ -86,7 +175,6 @@ void insereAluno(Lista *lista, int mat, char name[], float note, float freq, cha
 
 void destroi_lista(Lista *lista)
 {
-
     if (lista == NULL)
         return;
 
@@ -415,6 +503,21 @@ int main()
     // criando a lista
     Lista *lista = cria_lista();
 
+    FILE *file;
+    file = fopen("arquivo.txt", "a+");
+
+    if (file == NULL)
+    {
+        printf("Erro na abertura do arquivo.\n");
+        system("pause");
+        exit(1);
+    }
+
+    if (get_size("arquivo.txt") != 0)
+    {
+        preenche_lista(lista);
+    }
+
     while (menu != 9)
     {
 
@@ -739,12 +842,15 @@ int main()
             system("pause");
         }
 
-        if(menu == 8)
+        if (menu == 8)
         {
-
+            printf("\nGravar dados no arquivo\n");
+            gravarDados(lista);
+            system("pause");
         }
     }
 
+    fclose(file);
     destroi_lista(lista);
     printf("\nPrograma Finalizado!\nTenha um Bom dia!");
 
