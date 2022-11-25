@@ -844,9 +844,29 @@ int main()
 
         if (menu == 8)
         {
+            char resposta;
             printf("\nGravar dados no arquivo\n");
-            gravarDados(lista);
-            system("pause");
+
+            do
+            {
+                printf("\nTem certeza que deseja gravar os dados atuais? (S/N): ");
+                setbuf(stdin, NULL);
+                scanf("%c", &resposta);
+                printf("\n");
+            } while (resposta != 'S' && resposta != 's' && resposta != 'N' && resposta != 'n');
+
+            if (resposta == 'S' || resposta == 's')
+            {
+                gravarDados(lista);
+                printf("Os dados foram gravados com sucesso no arquivo!\n");
+                system("pause");
+            }
+
+            if(resposta == 'N' || resposta == 'n')
+            {
+                printf("Nenhuma tarefa foi executada!\nRetornando ao menu. . .\n");
+                system("pause");
+            }
         }
     }
 
