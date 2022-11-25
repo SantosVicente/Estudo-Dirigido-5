@@ -3,6 +3,7 @@
 #include <string.h>
 
 // VICENTE DOS SANTOS SILVA && VICTOR SAMUEL DOS SANTOS
+//Este código corresponde ao programa 1 do Estudo Dirigido 5
 
 typedef struct no
 {
@@ -847,22 +848,27 @@ int main()
             char resposta;
             printf("\nGravar dados no arquivo\n");
 
-            do
+            printf("\nTem certeza que deseja gravar os dados atuais? (S/N): ");
+            setbuf(stdin, NULL);
+            scanf("%c", &resposta);
+            printf("\n");
+
+            while (resposta != 'S' && resposta != 's' && resposta != 'N' && resposta != 'n')
             {
-                printf("\nTem certeza que deseja gravar os dados atuais? (S/N): ");
+                printf("Por favor, insira um valor valido (S/N): ");
                 setbuf(stdin, NULL);
                 scanf("%c", &resposta);
                 printf("\n");
-            } while (resposta != 'S' && resposta != 's' && resposta != 'N' && resposta != 'n');
+            }
 
             if (resposta == 'S' || resposta == 's')
             {
                 gravarDados(lista);
-                printf("Os dados foram gravados com sucesso no arquivo!\n");
+                printf("Os dados foram gravados com sucesso no arquivo!\nRetornando ao menu. . .\n");
                 system("pause");
             }
 
-            if(resposta == 'N' || resposta == 'n')
+            if (resposta == 'N' || resposta == 'n')
             {
                 printf("Nenhuma tarefa foi executada!\nRetornando ao menu. . .\n");
                 system("pause");
