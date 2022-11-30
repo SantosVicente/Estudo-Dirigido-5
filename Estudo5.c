@@ -3,7 +3,7 @@
 #include <string.h>
 
 // VICENTE DOS SANTOS SILVA && VICTOR SAMUEL DOS SANTOS
-//Este código corresponde ao programa 1 do Estudo Dirigido 5
+// Este código corresponde ao programa 1 do Estudo Dirigido 5
 
 typedef struct no
 {
@@ -12,6 +12,9 @@ typedef struct no
     int matricula;
     float frequencia;
     char turma[8];
+
+    int save;
+
     struct no *proximo;
 } No;
 
@@ -163,6 +166,7 @@ void insereAluno(Lista *lista, int mat, char name[], float note, float freq, cha
         novo->matricula = mat;
         novo->frequencia = freq;
         strcpy(novo->turma, class);
+        novo->save = 1;
 
         novo->proximo = lista->inicio;
         lista->inicio = novo;
@@ -172,6 +176,11 @@ void insereAluno(Lista *lista, int mat, char name[], float note, float freq, cha
         printf("Erro ao alocar memória!!");
         exit(1);
     }
+}
+
+void save_to_archive(Lista *lista)
+{
+    FILE *file = fopen("arquivo.txt", "w");
 }
 
 void destroi_lista(Lista *lista)
@@ -500,6 +509,7 @@ int main()
     float aux_nota, aux_freq;
     char aux_name[64], aux_turma[8];
     int achei, src;
+    char confirm;
 
     // criando a lista
     Lista *lista = cria_lista();
@@ -658,6 +668,22 @@ int main()
             contador++;
 
             insereAluno(lista, aux_mat, aux_name, aux_nota, aux_freq, aux_turma);
+
+            printf("\nDeseja cadastrar este aluno no arquivo? (S/N) : ");
+            setbuf(stdin, NULL);
+            scanf("%c", &confirm);
+
+            while (confirm != 'S' && confirm != 's' && confirm != 'N' && confirm != 'n')
+            {
+                printf("\n\nPor favor, digite um valor valido (S/N) : ");
+                setbuf(stdin, NULL);
+                scanf("%c", &confirm);
+            }
+
+            if (confirm == 'S' || confirm == 's')
+            {
+                save_to_archive(lista);
+            }
 
             printf("\n\nCadastro Realizado com Sucesso!\n");
             system("pause");
@@ -875,12 +901,7 @@ int main()
             }
         }
 
-        if(menu == 9)
-        {
-            continue;
-        }
-
-        else
+        if (menu > 9 || menu < 1)
         {
             printf("Digite um valor valido!!\n");
             system("pause");
