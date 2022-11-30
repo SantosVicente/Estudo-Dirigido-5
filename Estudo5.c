@@ -874,6 +874,17 @@ int main()
                 system("pause");
             }
         }
+
+        if(menu == 9)
+        {
+            continue;
+        }
+
+        else
+        {
+            printf("Digite um valor valido!!\n");
+            system("pause");
+        }
     }
 
     fclose(file);
