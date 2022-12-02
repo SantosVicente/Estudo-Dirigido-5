@@ -108,7 +108,7 @@ int preenche_lista(Lista *lista)
         fscanf(file, "%f ", &freq);
         fscanf(file, "%7[^\n] ", turma);
 
-        if (save != -1)
+        if (save != 0)
         {
             insere_lista_fim(lista, name, nota, freq, turma, mat, save);
         }
@@ -215,7 +215,7 @@ void save_to_archive(Lista *lista, int parametro)
             fscanf(file, "%f ", &aux->frequencia);
             fscanf(file, "%7[^\n] ", aux->turma);
 
-            if (aux->save == -1)
+            if (aux->save == 0)
             {
                 fseek(file, instante, SEEK_SET);
                 fprintf(file, "%d\n", node->save);
@@ -247,7 +247,7 @@ void save_to_archive(Lista *lista, int parametro)
                     fprintf(file, "%.6f\n", node->frequencia);
                 }
 
-                fprintf(file, "%s \n", node->turma);
+                fprintf(file, "%s", node->turma);
                 break;
             }
 
@@ -283,7 +283,7 @@ void save_to_archive(Lista *lista, int parametro)
                     fprintf(file, "%.6f\n", node->frequencia);
                 }
 
-                fprintf(file, "%s \n", node->turma);
+                fprintf(file, "%s\n", node->turma);
                 break;
             }
         }
@@ -410,7 +410,7 @@ int remove_lista(Lista *lista, int mat)
 
                     if (after->matricula == auxiliar->matricula)
                     {
-                        auxiliar->save = -1;
+                        auxiliar->save = 0;
 
                         fseek(arq, instante, SEEK_SET);
                         fprintf(arq, "%d\n", auxiliar->save);
@@ -442,7 +442,16 @@ int remove_lista(Lista *lista, int mat)
                             fprintf(arq, "%.6f\n", auxiliar->frequencia);
                         }
                         
-                        fprintf(arq, "%s\n", auxiliar->turma);
+                        if(feof(arq))
+                        {
+                            fprintf(arq, "%s\n", auxiliar->turma);
+                        }
+    
+                        else
+                        {
+                            fprintf(arq, "%s", auxiliar->turma);
+                        }
+    
                         break;
                     }
                 }
@@ -880,13 +889,13 @@ int main()
 
             if (achei == 1)
             {
-                printf("\n\n----------------------------------------------------");
+                printf("\n----------------------------------------------------");
                 printf("\nAluno removido com sucesso!");
                 printf("\n----------------------------------------------------\n");
                 contador--;
                 system("pause");
             }
-            if (achei = 0)
+            else
             {
                 printf("\n----------------------------------------------------");
                 printf("\nNao foi possivel fazer a remocao, aluno nao encontrado!");

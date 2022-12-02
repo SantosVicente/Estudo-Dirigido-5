@@ -1,14 +1,18 @@
 1
-2
-Camargo
+4
+Victor
 10.0000
 100.0000
-Turma A 
-
--1
+Turma A
+0
+2
+Joao
+10.0000
+100.0000
+Turma B
+1
 1
 Vicente
 10.0000
 100.0000
-Turma A
-
+Turma B
