@@ -54,7 +54,7 @@ int get_size(const char *file_name)
     return size;
 }
 
-void insere_lista_fim(Lista *lista, char nome[], float nota, float freq, char turma[], int mat)
+void insere_lista_fim(Lista *lista, char nome[], float nota, float freq, char turma[], int mat, int save)
 {
     No *node = (No *)malloc(sizeof(No));
     if (node == NULL)
@@ -63,11 +63,12 @@ void insere_lista_fim(Lista *lista, char nome[], float nota, float freq, char tu
         exit(1);
     }
 
+    node->save = save;
+    node->matricula = mat;
     strcpy(node->nome, nome);
     node->nota = nota;
     node->frequencia = freq;
     strcpy(node->turma, turma);
-    node->matricula = mat;
 
     node->proximo = NULL;
 
@@ -83,7 +84,7 @@ void insere_lista_fim(Lista *lista, char nome[], float nota, float freq, char tu
     }
 }
 
-void preenche_lista(Lista *lista)
+int preenche_lista(Lista *lista)
 {
     FILE *file = fopen("arquivo.txt", "a+");
 
@@ -94,20 +95,28 @@ void preenche_lista(Lista *lista)
 
     char name[128], turma[8];
     float nota;
-    int mat;
+    int mat, save;
     float freq;
 
     while (!feof(file))
     {
+
+        fscanf(file, "%d ", &save);
+        fscanf(file, "%d ", &mat);
         fscanf(file, "%127[^\n] ", name);
         fscanf(file, "%f ", &nota);
         fscanf(file, "%f ", &freq);
         fscanf(file, "%7[^\n] ", turma);
-        fscanf(file, "%d ", &mat);
 
-        insere_lista_fim(lista, name, nota, freq, turma, mat);
+        if (save != -1)
+        {
+            insere_lista_fim(lista, name, nota, freq, turma, mat, save);
+        }
     }
+
     fclose(file);
+
+    return 1;
 }
 
 void verificarAluno(Lista *lista, int mat, int *verif)
@@ -137,11 +146,12 @@ void gravarDados(Lista *lista)
 
     for (node = lista->inicio; node != NULL; node = node->proximo)
     {
+        fprintf(file, "%d\n", node->save);
+        fprintf(file, "%d\n", node->matricula);
         fprintf(file, "%s\n", node->nome);
         fprintf(file, "%f\n", node->nota);
         fprintf(file, "%f\n", node->frequencia);
-        fprintf(file, "%s\n", node->turma);
-        fprintf(file, "%d\n", node->matricula);
+        fprintf(file, "%s\n\n", node->turma);
     }
 
     fclose(file);
@@ -161,12 +171,12 @@ void insereAluno(Lista *lista, int mat, char name[], float note, float freq, cha
 
     if (novo)
     {
+        novo->save = 1;
         strcpy(novo->nome, name);
         novo->nota = note;
         novo->matricula = mat;
         novo->frequencia = freq;
         strcpy(novo->turma, class);
-        novo->save = 1;
 
         novo->proximo = lista->inicio;
         lista->inicio = novo;
@@ -178,9 +188,112 @@ void insereAluno(Lista *lista, int mat, char name[], float note, float freq, cha
     }
 }
 
-void save_to_archive(Lista *lista)
+void save_to_archive(Lista *lista, int parametro)
 {
-    FILE *file = fopen("arquivo.txt", "w");
+    /*
+        Ao final do cadastro quando questionado se deseja adicionar no arquivo,
+        se deve percorrê-lo, e salvá-lo no local aonde tiver um dado com o SAVE == -1.
+    */
+
+    FILE *file = fopen("arquivo.txt", "r+");
+    int instante;
+    No *node;
+    No *aux = (No *)malloc(sizeof(No));
+
+    if (parametro == 1) // caso a function esteja sendo usada no cadastro
+    {
+        node = lista->inicio;
+
+        while (!feof(file))
+        {
+            instante = ftell(file);
+
+            fscanf(file, "%d ", &aux->save);
+            fscanf(file, "%d ", &aux->matricula);
+            fscanf(file, "%127[^\n] ", aux->nome);
+            fscanf(file, "%f ", &aux->nota);
+            fscanf(file, "%f ", &aux->frequencia);
+            fscanf(file, "%7[^\n] ", aux->turma);
+
+            if (aux->save == -1)
+            {
+                fseek(file, instante, SEEK_SET);
+                fprintf(file, "%d\n", node->save);
+                fprintf(file, "%d\n", node->matricula);
+                fprintf(file, "%s\n", node->nome);
+
+                if (node->nota == 10)
+                {
+                    fprintf(file, "%.4f\n", node->nota);
+                }
+
+                if (node->nota < 10)
+                {
+                    fprintf(file, "%.5f\n", node->nota);
+                }
+
+                if (node->frequencia == 100)
+                {
+                    fprintf(file, "%.4f\n", node->frequencia);
+                }
+
+                if (node->frequencia < 100 && node->frequencia >= 10)
+                {
+                    fprintf(file, "%.5f\n", node->frequencia);
+                }
+
+                if (node->frequencia < 10)
+                {
+                    fprintf(file, "%.6f\n", node->frequencia);
+                }
+
+                fprintf(file, "%s \n", node->turma);
+                break;
+            }
+
+            if (feof(file))
+            {
+                fseek(file, 0, SEEK_END);
+                fprintf(file, "%d\n", node->save);
+                fprintf(file, "%d\n", node->matricula);
+                fprintf(file, "%s\n", node->nome);
+
+                if (node->nota == 10)
+                {
+                    fprintf(file, "%.4f\n", node->nota);
+                }
+
+                if (node->nota < 10)
+                {
+                    fprintf(file, "%.5f\n", node->nota);
+                }
+
+                if (node->frequencia == 100)
+                {
+                    fprintf(file, "%.4f\n", node->frequencia);
+                }
+
+                if (node->frequencia < 100 && node->frequencia >= 10)
+                {
+                    fprintf(file, "%.5f\n", node->frequencia);
+                }
+
+                if (node->frequencia < 10)
+                {
+                    fprintf(file, "%.6f\n", node->frequencia);
+                }
+
+                fprintf(file, "%s \n", node->turma);
+                break;
+            }
+        }
+    }
+
+    if (parametro == 2) // caso a function esteja sendo usada na opção 8
+    {
+    }
+
+    fclose(file);
 }
 
 void destroi_lista(Lista *lista)
@@ -242,7 +355,6 @@ void imprime(Lista *lista)
 
 int remove_lista(Lista *lista, int mat)
 {
-
     if (lista == NULL)
         return 0;
 
@@ -250,6 +362,9 @@ int remove_lista(Lista *lista, int mat)
         return 0;
 
     No *before, *after;
+    FILE *arq = fopen("arquivo.txt", "r+");
+    No *auxiliar = (No *)malloc(sizeof(No));
+    int instante;
 
     for (after = lista->inicio; after != NULL; before = after, after = after->proximo)
     {
@@ -279,6 +394,64 @@ int remove_lista(Lista *lista, int mat)
                     before->proximo = after->proximo;
                 }
             }
+
+            if (after->save == 1)
+            {
+                while (!feof(arq))
+                {
+                    instante = ftell(arq);
+
+                    fscanf(arq, "%d ", &auxiliar->save);
+                    fscanf(arq, "%d ", &auxiliar->matricula);
+                    fscanf(arq, "%127[^\n] ", auxiliar->nome);
+                    fscanf(arq, "%f ", &auxiliar->nota);
+                    fscanf(arq, "%f ", &auxiliar->frequencia);
+                    fscanf(arq, "%7[^\n] ", auxiliar->turma);
+
+                    if (after->matricula == auxiliar->matricula)
+                    {
+                        auxiliar->save = -1;
+
+                        fseek(arq, instante, SEEK_SET);
+                        fprintf(arq, "%d\n", auxiliar->save);
+                        fprintf(arq, "%d\n", auxiliar->matricula);
+                        fprintf(arq, "%s\n", auxiliar->nome);
+                        
+                        if (auxiliar->nota == 10)
+                        {
+                            fprintf(arq, "%.4f\n", auxiliar->nota);
+                        }
+
+                        if (auxiliar->nota < 10)
+                        {
+                            fprintf(arq, "%.5f\n", auxiliar->nota);
+                        }
+
+                        if (auxiliar->frequencia == 100)
+                        {
+                            fprintf(arq, "%.4f\n", auxiliar->frequencia);
+                        }
+
+                        if (auxiliar->frequencia < 100 && auxiliar->frequencia >= 10)
+                        {
+                            fprintf(arq, "%.5f\n", auxiliar->frequencia);
+                        }
+
+                        if (auxiliar->frequencia < 10)
+                        {
+                            fprintf(arq, "%.6f\n", auxiliar->frequencia);
+                        }
+                        
+                        fprintf(arq, "%s\n", auxiliar->turma);
+                        break;
+                    }
+                }
+
+                fclose(arq);
+            }
+
+            free(after);
+            free(auxiliar);
 
             return 1;
         }
@@ -508,7 +681,7 @@ int main()
     int menu = 0, i = -1, aux_mat, contador = 0, bolean_nota, remove, res1, res2, verif = 0, conf_tur = 0;
     float aux_nota, aux_freq;
     char aux_name[64], aux_turma[8];
-    int achei, src;
+    int achei, src, error, parametro;
     char confirm;
 
     // criando a lista
@@ -526,7 +699,12 @@ int main()
 
     if (get_size("arquivo.txt") != 0)
     {
-        preenche_lista(lista);
+        error = preenche_lista(lista);
+        if (error == 0)
+        {
+            printf("Ocorreu um erro ao preencher a lista com os dados anteriores!");
+            exit(1);
+        }
     }
 
     while (menu != 9)
@@ -682,7 +860,8 @@ int main()
 
             if (confirm == 'S' || confirm == 's')
             {
-                save_to_archive(lista);
+                parametro = 1;
+                save_to_archive(lista, parametro);
             }
 
             printf("\n\nCadastro Realizado com Sucesso!\n");
@@ -914,3 +1093,20 @@ int main()
 
     return 0;
 }
+
+/*
+    Ao final do cadastro quando questionado se deseja adicionar no arquivo, se deve percorrê-lo,
+    e salvá-lo no local aonde tiver um dado com o SAVE == -1.
+
+    No opção 8 do menu se deve atualizar no arquivo somente os alunos que não estiverem no arquivo da seguinte forma:
+        -> Confira se um aluno ja está no arquivo pela sua matricula, e caso não estiver, insira-o ou no lugar de algum
+           que foi apagado (SAVE == -1), ou ao final caso não tenha nenhum aluno que antigamente foi apagado. (save_function)
+
+        -> Será necessário perecorrer a lista procurando algum aluno que não esteja no arquivo dessa forma:
+            -> Aluno Um (Lista) == Aluno X (Arquivo)? se Sim, então não cadastrar. Usar aqui uma variavel
+        Int Aux que dirá se ele ja esta na lista ou nao
+
+            -> Caso Aluno Um (Lista) não seja igual a nenhum dos que já estão no arquivo (Aux == 1) ele deve
+        jogar este aluno em uma outra função para adicioná-lo ou no lugar de algum que seja SAVE == -1 ou no final
+        (A MESMA FUNÇÃO save_function)
+*/

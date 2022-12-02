@@ -1,0 +1,7 @@
+~~ATUALIZAÇÕES~~
+
+-> Modo como aloca no arquivo nas funções de remover aluno e gravar no arquivo ainda estão dando errado
+
+-> Arrumar a opção 8
+
+-> Arrumar o problema da contagem de caracteres (em nota e etc)
