@@ -1,9 +1,0 @@
-~~ATUALIZAÇÕES~~
-
--> Arrumar a opção 8
-
--> Arrumar o problema da contagem de caracteres:
-    -> Os nomes estão dando problema ao remover e cadastrar outro aluno em cima, 
-       pois a diferença na quantia de caracteres faz com que dê ruim. Uma ideia
-       pode ser a de antes de escrever por cima dos dados antigos, limpá-los com \n
-       e depois usar o fseek para voltar aonde deveria e reescrever os dados novos.
