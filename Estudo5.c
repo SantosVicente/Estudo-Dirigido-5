@@ -138,109 +138,73 @@ void verificarAluno(Lista *lista, int mat, int *verif)
 
 void gravarDados(Lista *lista)
 {
-    FILE *file = fopen("arquivo.txt", "w");
+    FILE *file = fopen("arquivo.txt", "r+");
 
     No *node;
-    int instante;
+    int instante, cad = 0;
     No *aux = (No *)malloc(sizeof(No));
 
     for (node = lista->inicio; node != NULL; node = node->proximo)
     {
+        rewind(file);
         while (1)
         {
-            instante = ftell(file);
+            fscanf(file, "%d ", &aux->save);
+            fscanf(file, "%d ", &aux->matricula);
+            fscanf(file, "%63[^\n] ", aux->nome);
+            fscanf(file, "%f ", &aux->nota);
+            fscanf(file, "%f ", &aux->frequencia);
+            fscanf(file, "%c ", &aux->turma);
 
-            if (!feof(file))
+            if (node->matricula == aux->matricula && aux->save != 0)
             {
-                fscanf(file, "%d ", &aux->save);
-                fscanf(file, "%d ", &aux->matricula);
-                fscanf(file, "%63[^\n] ", aux->nome);
-                fscanf(file, "%f ", &aux->nota);
-                fscanf(file, "%f ", &aux->frequencia);
-                fscanf(file, "%c ", &aux->turma);
+                cad = 1;
             }
 
-            if (node->matricula != aux->matricula)
+            if (feof(file) && cad != 1)
             {
-                if (aux->save == 0)
+                fseek(file, 0, SEEK_END);
+                fprintf(file, "%d\n", node->save);
+                fprintf(file, "%d\n", node->matricula);
+                fwrite(node->nome, 1, strlen(node->nome), file);
+
+                if (node->nota == 10)
                 {
-                    fseek(file, instante, SEEK_SET);
-
-                    fprintf(file, "%d\n", node->save);
-                    fprintf(file, "%d\n", node->matricula);
-                    fwrite(node->nome, 1, strlen(node->nome), file);
-
-                    if (node->nota == 10)
-                    {
-                        fprintf(file, "\n%.4f\n", node->nota);
-                    }
-
-                    if (node->nota < 10)
-                    {
-                        fprintf(file, "\n%.5f\n", node->nota);
-                    }
-
-                    if (node->frequencia == 100)
-                    {
-                        fprintf(file, "%.4f\n", node->frequencia);
-                    }
-
-                    if (node->frequencia < 100 && node->frequencia >= 10)
-                    {
-                        fprintf(file, "%.5f\n", node->frequencia);
-                    }
-
-                    if (node->frequencia < 10)
-                    {
-                        fprintf(file, "%.6f\n", node->frequencia);
-                    }
-
-                    fprintf(file, "%c\n", node->turma);
-
-                    break;
+                    fprintf(file, "\n%.4f\n", node->nota);
                 }
 
-                if (feof(file))
+                if (node->nota < 10)
                 {
-                    fseek(file, 0, SEEK_END);
-
-                    fprintf(file, "%d\n", node->save);
-                    fprintf(file, "%d\n", node->matricula);
-                    fwrite(node->nome, 1, strlen(node->nome), file);
-
-                    if (node->nota == 10)
-                    {
-                        fprintf(file, "\n%.4f\n", node->nota);
-                    }
-
-                    if (node->nota < 10)
-                    {
-                        fprintf(file, "\n%.5f\n", node->nota);
-                    }
-
-                    if (node->frequencia == 100)
-                    {
-                        fprintf(file, "%.4f\n", node->frequencia);
-                    }
-
-                    if (node->frequencia < 100 && node->frequencia >= 10)
-                    {
-                        fprintf(file, "%.5f\n", node->frequencia);
-                    }
-
-                    if (node->frequencia < 10)
-                    {
-                        fprintf(file, "%.6f\n", node->frequencia);
-                    }
-
-                    fprintf(file, "%c\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", node->turma);
-
-                    break;
+                    fprintf(file, "\n%.5f\n", node->nota);
                 }
+
+                if (node->frequencia == 100)
+                {
+                    fprintf(file, "%.4f\n", node->frequencia);
+                }
+
+                if (node->frequencia < 100 && node->frequencia >= 10)
+                {
+                    fprintf(file, "%.5f\n", node->frequencia);
+                }
+
+                if (node->frequencia < 10)
+                {
+                    fprintf(file, "%.6f\n", node->frequencia);
+                }
+
+                fprintf(file, "%c\n", node->turma);
+                break;
+            }
+
+            if (feof(file))
+            {
+                cad = 0;
+                break;
             }
         }
-        fclose(file);
     }
+    fclose(file);
 }
 
 void insereAluno(Lista *lista, int mat, char name[], float note, float freq, char class)
@@ -283,96 +247,39 @@ void save_to_archive(Lista *lista)
 
     node = lista->inicio;
 
-    while (1)
+    fseek(file, 0, SEEK_END);
+
+    fprintf(file, "%d\n", node->save);
+    fprintf(file, "%d\n", node->matricula);
+    fwrite(node->nome, 1, strlen(node->nome), file);
+
+    if (node->nota == 10)
     {
-        instante = ftell(file);
-
-        if (!feof(file))
-        {
-            fscanf(file, "%d ", &aux->save);
-            fscanf(file, "%d ", &aux->matricula);
-            fscanf(file, "%63[^\n] ", aux->nome);
-            fscanf(file, "%f ", &aux->nota);
-            fscanf(file, "%f ", &aux->frequencia);
-            fscanf(file, "%c ", &aux->turma);
-        }
-
-        if (aux->save == 0)
-        {
-            fseek(file, instante, SEEK_SET);
-
-            fprintf(file, "%d\n", node->save);
-            fprintf(file, "%d\n", node->matricula);
-            fwrite(node->nome, 1, strlen(node->nome), file);
-
-            if (node->nota == 10)
-            {
-                fprintf(file, "\n%.4f\n", node->nota);
-            }
-
-            if (node->nota < 10)
-            {
-                fprintf(file, "\n%.5f\n", node->nota);
-            }
-
-            if (node->frequencia == 100)
-            {
-                fprintf(file, "%.4f\n", node->frequencia);
-            }
-
-            if (node->frequencia < 100 && node->frequencia >= 10)
-            {
-                fprintf(file, "%.5f\n", node->frequencia);
-            }
-
-            if (node->frequencia < 10)
-            {
-                fprintf(file, "%.6f\n", node->frequencia);
-            }
-
-            fprintf(file, "%c\n", node->turma);
-
-            break;
-        }
-
-        if (feof(file))
-        {
-            fseek(file, 0, SEEK_END);
-
-            fprintf(file, "%d\n", node->save);
-            fprintf(file, "%d\n", node->matricula);
-            fwrite(node->nome, 1, strlen(node->nome), file);
-
-            if (node->nota == 10)
-            {
-                fprintf(file, "\n%.4f\n", node->nota);
-            }
-
-            if (node->nota < 10)
-            {
-                fprintf(file, "\n%.5f\n", node->nota);
-            }
-
-            if (node->frequencia == 100)
-            {
-                fprintf(file, "%.4f\n", node->frequencia);
-            }
-
-            if (node->frequencia < 100 && node->frequencia >= 10)
-            {
-                fprintf(file, "%.5f\n", node->frequencia);
-            }
-
-            if (node->frequencia < 10)
-            {
-                fprintf(file, "%.6f\n", node->frequencia);
-            }
-
-            fprintf(file, "%c\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", node->turma);
-
-            break;
-        }
+        fprintf(file, "\n%.4f\n", node->nota);
     }
+
+    if (node->nota < 10)
+    {
+        fprintf(file, "\n%.5f\n", node->nota);
+    }
+
+    if (node->frequencia == 100)
+    {
+        fprintf(file, "%.4f\n", node->frequencia);
+    }
+
+    if (node->frequencia < 100 && node->frequencia >= 10)
+    {
+        fprintf(file, "%.5f\n", node->frequencia);
+    }
+
+    if (node->frequencia < 10)
+    {
+        fprintf(file, "%.6f\n", node->frequencia);
+    }
+
+    fprintf(file, "%c\n", node->turma);
+
     fclose(file);
 }
 
@@ -485,7 +392,7 @@ int remove_lista(Lista *lista, int mat)
 
                     fscanf(arq, "%d ", &auxiliar->save);
                     fscanf(arq, "%d ", &auxiliar->matricula);
-                    fscanf(arq, "%127[^\n] ", auxiliar->nome);
+                    fscanf(arq, "%63[^\n] ", auxiliar->nome);
                     fscanf(arq, "%f ", &auxiliar->nota);
                     fscanf(arq, "%f ", &auxiliar->frequencia);
                     fscanf(arq, "%c ", &auxiliar->turma);
